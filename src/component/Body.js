@@ -1,12 +1,14 @@
 
 
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import "primereact/resources/themes/lara-light-cyan/theme.css";
-import { TreeSelect } from 'primereact/treeselect';
-
 import { Slider } from 'primereact/slider';
-
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie } from "react-chartjs-2";
+ChartJS.register(
+    ArcElement, Tooltip, Legend  
+)
 
 const Body = () => {
    
@@ -14,11 +16,8 @@ const Body = () => {
     const[down,setdown]=useState(60)
     const[loan,setloan]=useState(240)
     const[persentage,setper]=useState(2)
-    const[selectedNodeKey,setSelectedNodeKey]=useState("shiva")
-    const [nodes, setNodes] = useState(["shiva"]);
-    useEffect(() => {
-        setNodes("rahul");
-    }, []);  
+   
+   
 
     function myfunction1(e){
         setValue(e.value)
@@ -40,8 +39,19 @@ const Body = () => {
    setper(e.value)
 
     }
+    const totalLoanMonths = 5 * 12;
+  const interestPerMonth = persentage / 100 / 12;
+  const monthlyPayment =
+    (loan *
+      interestPerMonth *
+      (1 + interestPerMonth) ** totalLoanMonths) /
+    ((1 + interestPerMonth) ** totalLoanMonths - 1);
 
+  const totalInterestGenerated = monthlyPayment * totalLoanMonths - loan;
+
+    
   return (
+    <div style={{display:"flex", alignItems:"center",justifyContent:"space-between"}}>
     <div style={{marginLeft:"5%", width:"50%"}}>
        
        
@@ -70,25 +80,31 @@ const Body = () => {
     <div style={{width:"100%", }}><Slider value={persentage} max={18} min={2}  onChange={(e) => myfunction4(e)} /></div>
     <div id="fl"><span>${2}</span><span>${18}</span></div>
     </div>
-    <div style={{ marginTop:"2vw"}}>
-        <p>Tenure</p>
-        <TreeSelect
-        style={{color:"black"}}
-            value={selectedNodeKey}
-            onChange={(e) => setSelectedNodeKey(e.value)}
-            options={nodes}
-            placeholder="Select Item"
-            pt={{
-                root: { className: 'w-full md:w-30rem' },
-                tree: {
-                    content: ({ context }) => ({
-                        className: context.expanded ? 'bg-blue-100' : 'undefined'
-                    })
-                }
-            }}
-        ></TreeSelect>
-       
-        </div>
+   
+    </div >
+   
+      <div style={{width:"30%", display:"flex", flexDirection:"column",alignItems:"cen"}}> 
+      <h3>MonthlyPayment:$ {Math.floor(monthlyPayment)}</h3>
+      <Pie data = {{
+        labels: [
+          'Principal',
+          'interest',
+          
+        ],
+        datasets: [{
+         
+          data: [amount, totalInterestGenerated, ],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            
+          ],
+          hoverOffset: 4
+        }]
+      }
+    }
+></Pie>
+ </div>
     </div>
   )
 }
